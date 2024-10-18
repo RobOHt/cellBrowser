@@ -490,12 +490,17 @@ def cbImportSeurat(inFname, outDir, datasetName, options):
         inExt = splitext(inFname.lower())[1]
         if inExt in [".robj", ".rdata"]:
             inFormat="rdata"
+        elif inExt == ".qs":
+            inFormat="qs"
         else:
             inFormat = "rds"
 
     if inFormat=="rds":
         cmds.append("message('Reading %s as .rds file')" % inFname)
         cmds.append("sobj <- readRDS(file='%s')" % inFname)
+    elif inFormat=="qs":
+        cmds.append("message('Reading %s as .qs file')" % inFname)
+        cmds.append("sobj <- qs::qread(file='%s')" % inFname)
     else:
         cmds.append("message('Reading %s as .RData file, assuming that the first object in the file is the Seurat object')" % inFname)
         cmds.append("names <- load('%s')" % inFname)

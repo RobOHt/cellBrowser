@@ -3493,6 +3493,7 @@ def justPoints(coords):
 
 def convertCoords(inDir, inConf, outConf, sampleNames, outMeta, outDir):
     " convert the coordinates "
+    print("\n\n\n", inConf, "\n\n\n")
     coordFnames = makeAbsDict(inConf, "coords")
     coordFnames = makeAbsDict(inConf, "coords", fnameKey="lineFile")
 
