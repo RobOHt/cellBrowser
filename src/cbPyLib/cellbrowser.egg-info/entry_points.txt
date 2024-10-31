@@ -11,3 +11,4 @@ cbScanpy = cellbrowser.cellbrowser:cbScanpyCli
 cbSeurat = cellbrowser.seurat:cbSeuratCli
 cbTool = cellbrowser.convert:cbToolCli
 cbUpgrade = cellbrowser.cellbrowser:cbUpgradeCli
+
