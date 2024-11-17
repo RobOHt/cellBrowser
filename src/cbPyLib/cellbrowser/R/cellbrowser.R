@@ -1,3 +1,43 @@
+
+# =============================== FUNCTIONS ===================================
+
+#' used by ExportToCellbrowser:
+#' Return a Seurat object that is guaranteed to have a `seurat_clusters` field.
+#' 
+#' @param object Seurat object
+#' @return a clustered Seurat object that has a `seurat_clusters` field.
+#' 
+PreprocessCB = function(object) {
+  message("Preprocessing Seurat object.")
+  if (! "seurat_clusters" %in% names(object@meta.data)) {
+    # This means user told us that `seurat_clusters` holds cluster info, 
+    # but it's not actually there. We must make a `seurat_clusters` ourselves.
+    message("This dataset had not been clustered! ")
+    # Before attempting to find clusters, check whether this dataset meets our 
+    # standard requirements.
+    requiredcolumns <- c("cellType", "patient", "category")
+    missing <- setdiff(requiredcolumns, names(object@meta.data))
+    if (length(missing) > 0) {
+      missingColumnsList <- paste(missing, collapse=", ")
+      stop(paste0("Critical columns missing: ", missingColumnsList, ". They are needed to properly cluster this dataset! "))
+    } else {
+      message(paste("Clustering right now..."))
+      # Cluster the Seurat object
+      object <- NormalizeData(object)
+      object <- FindVariableFeatures(object, selection.method = "vst", nfeatures = 2000)
+      all.genes <- rownames(object)
+      object@assays$RNA@data@x[is.na(object@assays$RNA@data@x)] <- 0
+      object <- ScaleData(object, features = all.genes)
+      object <- RunPCA(object, features = VariableFeatures(object = object))
+      object <- FindNeighbors(object, dims = 1:10)
+      object <- FindClusters(object, resolution = 0.5)
+      object <- RunUMAP(object, dims = 1:10)
+    }
+  }
+  message("Preprocessing completed.")
+  return(object)
+}
+
 # Build a UCSC cell browser website from a \code{Seurat} object
 #
 NULL
@@ -177,6 +217,12 @@ ExportToCellbrowser <- function(
           object <- UpdateSeuratObject(object)
   }
 
+  # Preprocess Seurat obj if cluster.field = "seurat_clusters", because why not.
+  if (cluster.field == "seurat_clusters") {
+    object <- PreprocessCB(object)
+  }
+  
+  # print summary
   message("Seurat object summary:")
   print(object)
 
@@ -494,3 +540,9 @@ StopCellbrowser <- function() {
     stop("The `cellbrowser` package is not available in the Python used by R's reticulate")
   }
 }
+
+# =============================== FUNCTIONS ===================================
+
+#-----------------------------------------------------------------------------#
+
+# ================================= CODE ======================================

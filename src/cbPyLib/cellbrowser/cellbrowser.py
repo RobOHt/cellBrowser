@@ -1200,7 +1200,7 @@ def guessFieldMeta(valList, fieldMeta, colors, forceType, enumOrder):
         fieldMeta["arrType"], fieldMeta["_fmt"] = bytesAndFmt(len(valArr))
 
         if fieldMeta["arrType"].endswith("32"):
-            errAbort("Meta field %s has more than 32k different values and makes little sense to keep. "
+            logging.warn("Meta field %s has more than 32k different values and makes little sense to keep. "
                 "Please or remove the field from the meta data table or contact us, cells@ucsc.edu."% fieldMeta["name"])
 
         valToInt = dict([(y[0],x) for (x,y) in enumerate(valCounts)]) # dict with value -> index in valCounts
@@ -3431,7 +3431,7 @@ def convertExprMatrix(inConf, outMatrixFname, outConf, metaSampleNames, geneToSy
     except ValueError:
         logging.warn("This is rare: mis-guessed the matrix data type, trying again and using floating point numbers. To avoid this message in the future, you can set matrixType='float' in cellbrowser.conf.")
         matType = copyMatrixTrim(matrixFname, outMatrixFname, metaSampleNames, needFilterMatrix, geneToSym, outConf, "float")
-
+    
     # step2: compress matrix and index to file
     binMat = join(outDir, "exprMatrix.bin")
     binMatIndex = join(outDir, "exprMatrix.json")
